@@ -12,17 +12,59 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NBA Player Guess</title>
+
+  <title>Spordle | Daily NBA Player Guessing Game 🏀</title>
+
+  <!-- 🔍 SEO Meta -->
+  <meta name="description" content="Play Spordle — the daily NBA player guessing game. Guess the NBA player in as few tries as possible using clues like team, position, and age. Updated daily at midnight!">
+  <meta name="keywords" content="NBA Wordle, NBA Guessing Game, Basketball Trivia, Spordle, Daily NBA Puzzle, Guess the Player, NBA Stats Game, NBA Quiz">
+
+  <!-- 📱 Open Graph -->
+  <meta property="og:title" content="Spordle — Daily NBA Player Guessing Game 🏀">
+  <meta property="og:description" content="Can you guess today's NBA player? New challenge every day. Share your results and compete with friends!">
+  <meta property="og:image" content="https://spordle-production.up.railway.app/static/preview.png">
+  <meta property="og:url" content="https://spordle-production.up.railway.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Spordle">
+
+  <!-- 🐦 Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Spordle — NBA Guessing Game">
+  <meta name="twitter:description" content="Guess today's NBA player in as few tries as possible. Share your grid and challenge your friends!">
+  <meta name="twitter:image" content="https://spordle-production.up.railway.app/static/preview.png">
+
+  <!-- 🧭 Canonical -->
+  <link rel="canonical" href="https://spordle-production.up.railway.app/">
+
+  <!-- 🧠 Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Spordle",
+    "url": "https://spordle-production.up.railway.app/",
+    "description": "Spordle is a free daily NBA player guessing game. Guess the player based on team, position, age, and salary. New challenge every day.",
+    "potentialAction": {
+      "@type": "PlayAction",
+      "target": "https://spordle-production.up.railway.app/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Spordle",
+      "url": "https://spordle-production.up.railway.app/"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
 
-  <!-- Cookie Consent -->
+  <!-- 🍪 Cookie Consent -->
   <div id="cookieConsent" style="display:none;" class="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-between items-center z-50 shadow-lg">
     <span>This website uses cookies to enhance your experience. By continuing to browse, you consent to our use of cookies.</span>
-    <button id="acceptCookies" class="ml-4 bg-yellow-500 text-black px-3 py-1 rounded font-semibold hover:bg-yellow-400">
-      Accept
-    </button>
+    <button id="acceptCookies" class="ml-4 bg-yellow-500 text-black px-3 py-1 rounded font-semibold hover:bg-yellow-400">Accept</button>
   </div>
   <script>
     function setCookieConsent() {
@@ -42,6 +84,7 @@
     }
   </script>
 
+  <!-- 🏀 Title -->
   <h1 class="text-3xl font-bold text-yellow-400 mb-4">NBA Player Guess</h1>
   <p class="mb-2 text-lg">Time: <span id="timer">0s</span></p>
 
@@ -62,14 +105,14 @@
   </form>
   {% endif %}
 
-  <!-- Emoji Grid -->
+  <!-- 🧩 Emoji Grid -->
   <div class="text-2xl font-bold mt-2 space-y-1 w-full max-w-xl">
     {% for row in emoji_grid %}
       <div class="truncate">{{ row }}</div>
     {% endfor %}
   </div>
 
-  <!-- Stats Table -->
+  <!-- 📊 Stats Table -->
   <div class="w-full max-w-4xl mt-4 overflow-x-auto">
     <table class="table-auto border-collapse border border-gray-600 w-full text-center">
       <thead>
@@ -108,7 +151,7 @@
     <p>Guesses: {{ stats.get('guesses',0) }}</p>
   </div>
 
-  <!-- Win Modal -->
+  <!-- 🎉 Win / Lose Modals -->
   {% if guesses and guesses[-1]['name'] == target_player['name'] %}
   <div id="winningModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
     <div class="bg-gray-800 p-6 rounded-lg max-w-xl w-full text-center space-y-4">
@@ -147,7 +190,7 @@
   {% endif %}
 
   <script>
-    // --- Persistent Timer Logic ---
+    // --- Persistent Timer ---
     const todayKey = "nba_guess_timer_" + new Date().toISOString().slice(0,10);
     let savedElapsed = parseInt(localStorage.getItem(todayKey) || "0");
     let startTime = Date.now() - savedElapsed * 1000;
@@ -176,6 +219,7 @@
       stopAndSendTime();
     {% endif %}
 
+    // 📋 Copy Results with Link
     document.getElementById("copyButton")?.addEventListener("click", () => {
       const rows = {{ emoji_grid|tojson }};
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
