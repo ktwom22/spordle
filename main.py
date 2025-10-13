@@ -32,7 +32,9 @@ def split_name_and_jersey(name):
 
 df[['PlayerName', 'Jersey']] = df['Name'].apply(lambda x: pd.Series(split_name_and_jersey(x)))
 player_name_col = 'PlayerName'
-ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'HT', 'College', 'Salary']
+
+# ✅ Remove HT and College
+ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'Salary']
 MAX_GUESSES = 8
 
 def is_numeric(val):
@@ -155,9 +157,6 @@ def reset():
 def player_names():
     return jsonify([p['name'] for p in players])
 
-
-
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port, debug=True)
