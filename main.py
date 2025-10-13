@@ -2,11 +2,20 @@ import pandas as pd
 import random
 import re
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask_session import Session
 from datetime import date
 import os
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+
+# Use a fixed secret key (can also be set via environment variable)
+app.secret_key = os.environ.get('SECRET_KEY', 'supersecretkey')
+
+# Configure server-side sessions
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './flask_session/'
+app.config['SESSION_PERMANENT'] = False
+Session(app)
 
 # Load player data
 df = pd.read_csv("NBA_player_info_and_stats_joined_clean.csv")
@@ -32,7 +41,9 @@ def split_name_and_jersey(name):
 
 df[['PlayerName', 'Jersey']] = df['Name'].apply(lambda x: pd.Series(split_name_and_jersey(x)))
 player_name_col = 'PlayerName'
-ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'HT', 'College', 'Salary']
+
+# Remove 'HT' and 'College' from attributes
+ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'Salary']
 MAX_GUESSES = 8
 
 def is_numeric(val):
@@ -53,7 +64,8 @@ def is_close(guess, answer):
     return abs(guess - answer) / abs(answer) <= 0.1
 
 def get_arrow(guess, answer):
-    if not is_numeric(guess) or not is_numeric(answer): return ""
+    if not is_numeric(guess) or not is_numeric(answer):
+        return ""
     guess, answer = float(guess), float(answer)
     if guess < answer:
         return "↑"
@@ -155,9 +167,6 @@ def reset():
 def player_names():
     return jsonify([p['name'] for p in players])
 
-
-
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5001))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)
