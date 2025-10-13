@@ -28,46 +28,44 @@
 </form>
 
 <!-- Emoji Grid -->
-<div class="text-2xl font-bold mt-2 space-y-1">
+<div class="text-2xl font-bold mt-2 space-y-1 w-full max-w-xl">
   {% for row in emoji_grid %}
-    <div>{{ row }}</div>
+    <div class="truncate">{{ row }}</div>
   {% endfor %}
 </div>
 
-
-
-<!-- Live table -->
-<div class="overflow-x-auto w-full max-w-4xl mt-4">
-<table class="table-auto border-collapse border border-gray-600 w-full text-center">
-  <thead>
-    <tr>
-      <th class="border border-gray-600 px-2 py-1">Player</th>
-      {% for attr in attributes %}
-      <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
+<!-- Live Table -->
+<div class="w-full max-w-4xl mt-4 overflow-hidden sm:overflow-x-auto">
+  <table class="table-auto border-collapse border border-gray-600 w-full text-center">
+    <thead>
+      <tr>
+        <th class="border border-gray-600 px-2 py-1">Player</th>
+        {% for attr in attributes %}
+        <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in guesses %}
+      <tr>
+        <td class="border border-gray-600 px-2 py-1">{{ g['name'] }}</td>
+        {% for attr in attributes %}
+        {% set status, val, arrow = g['result'][attr] %}
+        {% if status == 'correct' %}
+          <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+        {% elif status == 'close' %}
+          <td class="bg-yellow-400 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+        {% else %}
+          <td class="bg-gray-800 border border-gray-600 px-2 py-1">{{ val }}{{ arrow }}</td>
+        {% endif %}
+        {% endfor %}
+      </tr>
       {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for g in guesses %}
-    <tr>
-      <td class="border border-gray-600 px-2 py-1">{{ g['name'] }}</td>
-      {% for attr in attributes %}
-      {% set status, val, arrow = g['result'][attr] %}
-      {% if status == 'correct' %}
-        <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
-      {% elif status == 'close' %}
-        <td class="bg-yellow-400 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
-      {% else %}
-        <td class="bg-gray-800 border border-gray-600 px-2 py-1">{{ val }}{{ arrow }}</td>
-      {% endif %}
-      {% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </tbody>
+  </table>
 </div>
 
-<div class="mt-4 text-lg">
+<div class="mt-4 text-lg text-center">
   <p>Guesses: {{ stats.get('guesses',0) }}</p>
   <p>Time: {{ stats.get('time_elapsed',0)|round }}s</p>
 </div>
@@ -75,35 +73,21 @@
 <!-- Win/Lose Modals -->
 {% if guesses and guesses[-1]['name'] == target_player['name'] %}
 <div id="winningModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
-  <div class="bg-gray-800 p-6 rounded-lg max-w-4xl w-full text-center space-y-4">
+  <div class="bg-gray-800 p-6 rounded-lg max-w-xl w-full text-center space-y-4">
     <h2 class="text-2xl font-bold text-green-400">🏆 You guessed it!</h2>
     <p>The player was <strong>{{ target_player['name'] }}</strong> 🏀</p>
     <h3 class="font-semibold mt-2">Your Game Summary</h3>
     <div class="text-2xl font-bold mt-2 space-y-1">
       {% for row in emoji_grid %}
-        <div>{{ row }}</div>
+        <div class="truncate">{{ row }}</div>
       {% endfor %}
-
-<!-- Copy Results Button -->
-<button id="copyButton" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold mt-2">
-  📋 Copy Results
-</button>
-
-<script>
-// Copy emoji grid + time elapsed
-document.getElementById('copyButton').addEventListener('click', () => {
-    let rows = {{ emoji_grid|tojson }};
-    let time = {{ stats.get('time_elapsed',0)|round }};
-    let text = rows.join('\n') + `\nTime: ${time}s`;
-
-    navigator.clipboard.writeText(text).then(() => {
-        alert('Game results copied to clipboard!');
-    }).catch(err => {
-        alert('Failed to copy: ' + err);
-    });
-});
-</script>
     </div>
+
+    <!-- Copy Results Button -->
+    <button id="copyButton" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold mt-2">
+      📋 Copy Results
+    </button>
+
     <a href="/reset">
       <button class="bg-yellow-500 hover:bg-yellow-600 px-5 py-2 rounded-lg font-semibold mt-2">Play Again</button>
     </a>
@@ -111,13 +95,13 @@ document.getElementById('copyButton').addEventListener('click', () => {
 </div>
 {% elif max_reached %}
 <div id="losingModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
-  <div class="bg-gray-800 p-6 rounded-lg max-w-4xl w-full text-center space-y-4">
+  <div class="bg-gray-800 p-6 rounded-lg max-w-xl w-full text-center space-y-4">
     <h2 class="text-2xl font-bold text-red-400">Better luck next time!</h2>
     <p>The player was <strong>{{ target_player['name'] }}</strong> 🏀</p>
     <h3 class="font-semibold mt-2">Your Game Summary</h3>
     <div class="text-2xl font-bold mt-2 space-y-1">
       {% for row in emoji_grid %}
-        <div>{{ row }}</div>
+        <div class="truncate">{{ row }}</div>
       {% endfor %}
     </div>
     <a href="/reset">
@@ -130,9 +114,21 @@ document.getElementById('copyButton').addEventListener('click', () => {
 <script>
 let startTime = Date.now();
 if({{ stats.get('time_elapsed',0) }}>0){ startTime -= {{ stats.get('time_elapsed',0)|round }}*1000; }
-let timerEl=document.getElementById('timer');
-function updateTimer(){timerEl.textContent=Math.floor((Date.now()-startTime)/1000)+"s";}
-setInterval(updateTimer,1000);
+let timerEl = document.getElementById('timer');
+function updateTimer(){ timerEl.textContent = Math.floor((Date.now() - startTime)/1000) + "s"; }
+setInterval(updateTimer, 1000);
+
+// Copy emoji grid + time elapsed
+document.getElementById('copyButton')?.addEventListener('click', () => {
+    let rows = {{ emoji_grid|tojson }};
+    let time = {{ stats.get('time_elapsed',0)|round }};
+    let text = rows.join('\n') + `\nTime: ${time}s`;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Game results copied to clipboard!');
+    }).catch(err => {
+        alert('Failed to copy: ' + err);
+    });
+});
 </script>
 
 </body>
