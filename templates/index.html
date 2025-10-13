@@ -16,7 +16,32 @@
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
-
+<!-- Put this anywhere in your base template, e.g., at the end of <body> -->
+<div id="cookieConsent" style="display:none;" class="fixed bottom-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-between items-center z-50 shadow-lg">
+  <span>
+    This website uses cookies to enhance your experience. By continuing to browse, you consent to our use of cookies.
+  </span>
+  <button id="acceptCookies" class="ml-4 bg-yellow-500 text-black px-3 py-1 rounded font-semibold hover:bg-yellow-400">
+    Accept
+  </button>
+</div>
+<script>
+  function setCookieConsent() {
+    document.cookie = "cookie_consent=1;path=/;max-age=31536000";
+  }
+  function hasCookieConsent() {
+    return document.cookie.split(';').some((c) => c.trim().startsWith('cookie_consent=1'));
+  }
+  window.onload = function() {
+    if (!hasCookieConsent()) {
+      document.getElementById('cookieConsent').style.display = "flex";
+    }
+    document.getElementById('acceptCookies').onclick = function() {
+      setCookieConsent();
+      document.getElementById('cookieConsent').style.display = "none";
+    }
+  }
+</script>
 {% if not current_user.is_authenticated and session.get('show_login_prompt', True) %}
 <div id="loginPromptModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
   <div class="bg-gray-800 p-6 rounded-lg max-w-sm w-full text-center space-y-4">
