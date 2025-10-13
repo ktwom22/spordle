@@ -4,3 +4,4 @@ pandas==2.0.2
 python-dateutil>=2.8.2
 pytz>=2023.3
 Flask-Session
+Flask-Login
