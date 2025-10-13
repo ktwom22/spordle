@@ -41,7 +41,9 @@
       <tr>
         <th class="border border-gray-600 px-2 py-1">Player</th>
         {% for attr in attributes %}
-        <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
+          {% if attr != 'Height' and attr != 'College' %}
+            <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
+          {% endif %}
         {% endfor %}
       </tr>
     </thead>
@@ -50,14 +52,16 @@
       <tr>
         <td class="border border-gray-600 px-2 py-1">{{ g['name'] }}</td>
         {% for attr in attributes %}
-        {% set status, val, arrow = g['result'][attr] %}
-        {% if status == 'correct' %}
-          <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
-        {% elif status == 'close' %}
-          <td class="bg-yellow-400 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
-        {% else %}
-          <td class="bg-gray-800 border border-gray-600 px-2 py-1">{{ val }}{{ arrow }}</td>
-        {% endif %}
+          {% if attr != 'Height' and attr != 'College' %}
+            {% set status, val, arrow = g['result'][attr] %}
+            {% if status == 'correct' %}
+              <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+            {% elif status == 'close' %}
+              <td class="bg-yellow-400 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+            {% else %}
+              <td class="bg-gray-800 border border-gray-600 px-2 py-1">{{ val }}{{ arrow }}</td>
+            {% endif %}
+          {% endif %}
         {% endfor %}
       </tr>
       {% endfor %}
