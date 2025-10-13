@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Player Guessle</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
+
+<h1 class="text-3xl font-bold text-yellow-400 mb-4">NBA Player Guessle</h1>
+
+<p class="mb-2 text-lg">Time: <span id="timer">0s</span></p>
+
+{% if error %}
+<p class="text-red-400 mb-2">{{ error }}</p>
+{% endif %}
+
+<form method="POST" class="mb-4 flex flex-col sm:flex-row gap-2 w-full max-w-xl">
+    <input type="text" name="guess" placeholder="Enter player name" list="player_names"
+           class="flex-1 px-3 py-2 rounded text-black font-semibold" autofocus required>
+    <datalist id="player_names">
+        {% for name in player_list %}
+        <option value="{{ name }}"></option>
+        {% endfor %}
+    </datalist>
+    <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold">Guess</button>
+</form>
+
+<!-- Emoji Grid -->
+<div class="text-2xl font-bold mt-2 space-y-1">
+  {% for row in emoji_grid %}
+    <div>{{ row }}</div>
+  {% endfor %}
+</div>
+
+
+
+<!-- Live table -->
+<div class="overflow-x-auto w-full max-w-4xl mt-4">
+<table class="table-auto border-collapse border border-gray-600 w-full text-center">
+  <thead>
+    <tr>
+      <th class="border border-gray-600 px-2 py-1">Player</th>
+      {% for attr in attributes %}
+      <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for g in guesses %}
+    <tr>
+      <td class="border border-gray-600 px-2 py-1">{{ g['name'] }}</td>
+      {% for attr in attributes %}
+      {% set status, val, arrow = g['result'][attr] %}
+      {% if status == 'correct' %}
+        <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+      {% elif status == 'close' %}
+        <td class="bg-yellow-400 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
+      {% else %}
+        <td class="bg-gray-800 border border-gray-600 px-2 py-1">{{ val }}{{ arrow }}</td>
+      {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="mt-4 text-lg">
+  <p>Guesses: {{ stats.get('guesses',0) }}</p>
+  <p>Time: {{ stats.get('time_elapsed',0)|round }}s</p>
+</div>
+
+<!-- Win/Lose Modals -->
+{% if guesses and guesses[-1]['name'] == target_player['name'] %}
+<div id="winningModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+  <div class="bg-gray-800 p-6 rounded-lg max-w-4xl w-full text-center space-y-4">
+    <h2 class="text-2xl font-bold text-green-400">🏆 You guessed it!</h2>
+    <p>The player was <strong>{{ target_player['name'] }}</strong> 🏀</p>
+    <h3 class="font-semibold mt-2">Your Game Summary</h3>
+    <div class="text-2xl font-bold mt-2 space-y-1">
+      {% for row in emoji_grid %}
+        <div>{{ row }}</div>
+      {% endfor %}
+
+<!-- Copy Results Button -->
+<button id="copyButton" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded font-semibold mt-2">
+  📋 Copy Results
+</button>
+
+<script>
+// Copy emoji grid + time elapsed
+document.getElementById('copyButton').addEventListener('click', () => {
+    let rows = {{ emoji_grid|tojson }};
+    let time = {{ stats.get('time_elapsed',0)|round }};
+    let text = rows.join('\n') + `\nTime: ${time}s`;
+
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Game results copied to clipboard!');
+    }).catch(err => {
+        alert('Failed to copy: ' + err);
+    });
+});
+</script>
+    </div>
+    <a href="/reset">
+      <button class="bg-yellow-500 hover:bg-yellow-600 px-5 py-2 rounded-lg font-semibold mt-2">Play Again</button>
+    </a>
+  </div>
+</div>
+{% elif max_reached %}
+<div id="losingModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+  <div class="bg-gray-800 p-6 rounded-lg max-w-4xl w-full text-center space-y-4">
+    <h2 class="text-2xl font-bold text-red-400">Better luck next time!</h2>
+    <p>The player was <strong>{{ target_player['name'] }}</strong> 🏀</p>
+    <h3 class="font-semibold mt-2">Your Game Summary</h3>
+    <div class="text-2xl font-bold mt-2 space-y-1">
+      {% for row in emoji_grid %}
+        <div>{{ row }}</div>
+      {% endfor %}
+    </div>
+    <a href="/reset">
+      <button class="bg-yellow-500 hover:bg-yellow-600 px-5 py-2 rounded-lg font-semibold mt-2">Play Again</button>
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<script>
+let startTime = Date.now();
+if({{ stats.get('time_elapsed',0) }}>0){ startTime -= {{ stats.get('time_elapsed',0)|round }}*1000; }
+let timerEl=document.getElementById('timer');
+function updateTimer(){timerEl.textContent=Math.floor((Date.now()-startTime)/1000)+"s";}
+setInterval(updateTimer,1000);
+</script>
+
+</body>
+</html>

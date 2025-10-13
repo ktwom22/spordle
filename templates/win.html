@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NBA Player Guessle - You Won!</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+        .emoji-grid div { font-size: 24px; line-height: 1.5; }
+        .modal { background-color: #f0f8ff; padding: 20px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #aaa; }
+        button { padding: 8px 15px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="modal">
+    <h2>🏆 You guessed it!</h2>
+    <p>The player was {{ player.name }} 🏀</p>
+</div>
+
+<h3>Your Game Summary</h3>
+
+<div class="emoji-grid" id="emoji-grid-container">
+    {% for row in emoji_grid %}
+        <div>{{ row }}</div>
+    {% endfor %}
+</div>
+
+<div>
+    Guesses: {{ stats.guesses }}<br>
+    Time: {{ stats.time_elapsed|round(1) }}s
+</div>
+
+<button id="copy-btn">📋 Copy Results</button>
+<button onclick="window.location='{{ url_for('reset') }}'">Play Again</button>
+
+<script>
+document.getElementById('copy-btn').addEventListener('click', function() {
+    let grid = document.getElementById('emoji-grid-container').innerText.trim();
+    let guesses = {{ stats.guesses }};
+    let time = {{ stats.time_elapsed|round(1) }};
+    let text = `${grid}\nGuesses: ${guesses}\nTime: ${time}s`;
+    navigator.clipboard.writeText(text).then(function() {
+        alert("Copied to clipboard!");
+    }, function(err) {
+        alert("Failed to copy: " + err);
+    });
+});
+</script>
+
+</body>
+</html>
