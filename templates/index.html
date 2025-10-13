@@ -76,7 +76,7 @@
         <tr>
           <th class="border border-gray-600 px-2 py-1">Player</th>
           {% for attr in attributes %}
-            {% if attr != 'Height' and attr != 'College' %}
+            {% if attr != 'Height' and attr != 'College' and attr != 'HT' %}
               <th class="border border-gray-600 px-2 py-1">{{ attr }}</th>
             {% endif %}
           {% endfor %}
@@ -87,7 +87,7 @@
         <tr>
           <td class="border border-gray-600 px-2 py-1">{{ g['name'] }}</td>
           {% for attr in attributes %}
-            {% if attr != 'Height' and attr != 'College' %}
+            {% if attr != 'Height' and attr != 'College' and attr != 'HT' %}
               {% set status, val, arrow = g['result'][attr] %}
               {% if status == 'correct' %}
                 <td class="bg-green-500 border border-gray-600 px-2 py-1 font-bold">{{ val }}{{ arrow }}</td>
@@ -179,7 +179,8 @@
     document.getElementById("copyButton")?.addEventListener("click", () => {
       const rows = {{ emoji_grid|tojson }};
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
-      const text = rows.join("\n") + `\nTime: ${elapsed}s`;
+      const link = "https://spordle-production.up.railway.app/";
+      const text = rows.join("\n") + `\nTime: ${elapsed}s\nPlay here → ${link}`;
       navigator.clipboard.writeText(text).then(() => {
         alert("Game results copied to clipboard!");
       });
