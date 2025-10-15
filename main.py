@@ -99,13 +99,7 @@ def calculate_leaderboard(stats_list, period='day'):
 # ----------------- Load NBA data -----------------
 df = pd.read_csv("NBA_player_info_and_stats_joined_clean.csv")
 
-def parse_salary(s):
-    try:
-        return int(re.sub(r'[^\d]', '', str(s)))
-    except:
-        return 0
 
-df = df[df['Salary'].apply(parse_salary) > 15_000_000].reset_index(drop=True)
 
 def normalize_name(name):
     return re.sub(r'\W+', '', str(name)).lower().strip()
