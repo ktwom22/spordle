@@ -2,43 +2,43 @@
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9WM9Z02GWE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-9WM9Z02GWE');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9WM9Z02GWE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-9WM9Z02GWE');
+  </script>
   <meta charset="UTF-8">
-  <title>Stats</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Leaderboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
+
   <div class="mb-4 flex justify-end w-full max-w-2xl">
-    {% if current_user.is_authenticated %}
-      <span class="mr-4 text-green-300">Logged in as {{ current_user.get_id() }}</span>
+    {% if email %}
+      <span class="mr-4 text-green-300">Logged in as {{ email }}</span>
       <a href="/logout" class="text-blue-400 underline">Logout</a>
     {% else %}
-      <a href="/login" class="text-blue-400 underline">Login or Register</a>
+      <a href="/login" class="text-blue-400 underline">Login with Email</a>
     {% endif %}
   </div>
+
   <h1 class="text-3xl font-bold text-yellow-400 mb-6">
     {% if period == 'week' %}This Week's{% else %}Today's{% endif %} Fastest & Fewest Guesses
   </h1>
-  <div class="w-full max-w-2xl bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-    <canvas id="statsChart" height="200"></canvas>
-  </div>
+
   {% if user_result %}
     <div class="mb-6 text-lg font-bold text-yellow-300">
       Your finish: <span class="text-white">{{ user_result.time }}s</span>,
       <span class="text-white">{{ user_result.guesses }} guesses</span>
     </div>
   {% endif %}
+
   <h2 class="text-xl font-bold text-yellow-400 mb-2 mt-8">
     Leaderboard{% if period == 'week' %} (Users with 5+ days){% endif %}
   </h2>
+
   <div class="w-full max-w-2xl mb-8">
     <table class="table-auto border-collapse border border-gray-600 w-full text-center bg-gray-800 rounded">
       <thead>
@@ -58,11 +58,11 @@
       </thead>
       <tbody>
         {% for entry in leaderboard %}
-        <tr {% if user_result and entry.username == user_result.username %}class="bg-yellow-900"{% endif %}>
+        <tr {% if user_result and entry.email == user_result.email %}class="bg-yellow-900"{% endif %}>
           <td class="border border-gray-600 px-2 py-1">{{ loop.index }}</td>
           <td class="border border-gray-600 px-2 py-1 font-bold">
-            {% set masked_user = entry.username.split('@')[0] ~ '@*****' if '@' in entry.username else entry.username %}
-            {% if user_result and entry.username == user_result.username %}
+            {% set masked_user = entry.email.split('@')[0] ~ '@*****' %}
+            {% if user_result and entry.email == user_result.email %}
               <span class="text-yellow-300">{{ masked_user }} (You)</span>
             {% else %}
               {{ masked_user }}
@@ -85,66 +85,12 @@
       <div class="text-gray-400 mt-4">No leaderboard yet!</div>
     {% endif %}
   </div>
+
   <div class="flex gap-6">
     <a href="/" class="text-blue-400 hover:underline">Back to game</a>
     <a href="/stats" class="text-blue-400 hover:underline">Today's stats</a>
     <a href="/stats?period=week" class="text-blue-400 hover:underline">This week's stats</a>
   </div>
-  <script>
-    const stats = {{ stats_list|tojson }};
-    const user = "{{ user_result['username'] if user_result else '' }}";
-    // Mask emails in chart too
-    function maskUser(u) {
-      return u.includes('@') ? (u.split('@')[0] + '@*****') : u;
-    }
-    let bestTimes = {}, bestGuesses = {};
-    stats.forEach(x => {
-      if (!(x.username in bestTimes) || x.time < bestTimes[x.username]) bestTimes[x.username] = x.time;
-      if (!(x.username in bestGuesses) || x.guesses < bestGuesses[x.username]) bestGuesses[x.username] = x.guesses;
-    });
-    let labels = Array.from(new Set(stats.map(x => x.username)));
-    let timesArr = labels.map(u => bestTimes[u]);
-    let guessesArr = labels.map(u => bestGuesses[u]);
-    const highlightColor = 'rgba(251,191,36,1)';
-    const normalColor1 = 'rgba(59,130,246,0.7)';
-    const normalColor2 = 'rgba(34,197,94,0.7)';
-    const barColorsTime = labels.map(u => u === user ? highlightColor : normalColor1);
-    const barColorsGuess = labels.map(u => u === user ? highlightColor : normalColor2);
 
-    const ctx = document.getElementById('statsChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels.map(u => (u === user ? (maskUser(u) + " (You)") : maskUser(u))),
-        datasets: [
-          {
-            label: 'Fastest Time (s)',
-            data: timesArr,
-            backgroundColor: barColorsTime,
-            borderWidth: 2,
-            order: 1
-          },
-          {
-            label: 'Fewest Guesses',
-            data: guessesArr,
-            backgroundColor: barColorsGuess,
-            borderWidth: 2,
-            order: 2
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        indexAxis: 'y',
-        scales: {
-          x: { beginAtZero: true, ticks: { color: '#fff' }, grid: { color: '#555' } },
-          y: { ticks: { color: '#fff' }, grid: { color: '#555' } }
-        },
-        plugins: {
-          legend: { labels: { color: '#fff', font: { weight: 'bold' } } }
-        }
-      }
-    });
-  </script>
 </body>
 </html>
