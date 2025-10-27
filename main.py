@@ -97,9 +97,7 @@ def calculate_leaderboard(stats_list, period='day'):
     return leaderboard
 
 # ----------------- Load NBA data -----------------
-df = pd.read_csv("NBA_player_info_and_stats_joined_clean.csv")
-
-
+df = pd.read_csv("NBA_player_info_with_division_conf.csv")
 
 def normalize_name(name):
     return re.sub(r'\W+', '', str(name)).lower().strip()
@@ -114,7 +112,8 @@ def split_name_and_jersey(name):
 df[['PlayerName', 'Jersey']] = df['Name'].apply(lambda x: pd.Series(split_name_and_jersey(x)))
 player_name_col = 'PlayerName'
 
-ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'Salary']
+# Replace Salary with Division
+ATTRIBUTES = ['Jersey', 'Team', 'POS', 'Age', 'Division']
 MAX_GUESSES = 8
 
 def is_numeric(val):
@@ -154,7 +153,6 @@ for _, row in df.iterrows():
 
 # ----------------- Daily player -----------------
 def get_daily_player():
-    # choose random daily player but keep it same for day
     today_str = date.today().isoformat()
     seed = int(date.today().strftime("%Y%m%d"))
     random.seed(seed)
@@ -308,7 +306,6 @@ def reset():
 def player_names():
     return jsonify([p['name'] for p in players])
 
-
 @app.route('/stats')
 def stats():
     period = request.args.get("period", "day")
@@ -334,9 +331,8 @@ def stats():
         user_result=user_result,
         period=period,
         leaderboard=leaderboard,
-        email=email  # Pass email to template
+        email=email
     )
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))

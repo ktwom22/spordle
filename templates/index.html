@@ -16,7 +16,7 @@
   <title>Spordle | Daily NBA Player Guessing Game 🏀</title>
 
   <!-- 🔍 SEO Meta -->
-  <meta name="description" content="Play Spordle — the daily NBA player guessing game. Guess the NBA player in as few tries as possible using clues like team, position, and age. Updated daily at midnight!">
+  <meta name="description" content="Play Spordle — the daily NBA player guessing game. Guess the NBA player in as few tries as possible using clues like team, position, division, and age. Updated daily at midnight!">
   <meta name="keywords" content="NBA Wordle, NBA Guessing Game, Basketball Trivia, Spordle, Daily NBA Puzzle, Guess the Player, NBA Stats Game, NBA Quiz">
 
   <!-- 📱 Open Graph -->
@@ -43,7 +43,7 @@
     "@type": "WebSite",
     "name": "Spordle",
     "url": "https://spordle-production.up.railway.app/",
-    "description": "Spordle is a free daily NBA player guessing game. Guess the player based on team, position, age, and salary. New challenge every day.",
+    "description": "Spordle is a free daily NBA player guessing game. Guess the player based on team, position, division, and age. New challenge every day.",
     "potentialAction": {
       "@type": "PlayAction",
       "target": "https://spordle-production.up.railway.app/"
@@ -59,6 +59,7 @@
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-900 text-gray-100 flex flex-col items-center min-h-screen p-4">
 
   <!-- 🍪 Cookie Consent -->
@@ -219,7 +220,7 @@
       stopAndSendTime();
     {% endif %}
 
-    // 📋 Copy Results with Link
+    // 📋 Copy Results
     document.getElementById("copyButton")?.addEventListener("click", () => {
       const rows = {{ emoji_grid|tojson }};
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
